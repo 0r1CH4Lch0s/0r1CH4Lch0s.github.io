@@ -11,3 +11,5 @@ for (var y = 0; y < size; y++) {   /*in the outer loop we add newline to seperat
   }
   board += "\n";
 }
+
+console.log(board);
