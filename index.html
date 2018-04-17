@@ -160,33 +160,16 @@ function myFunction() {
 </script>
 
 <script type="text/javascript">
-// Drawing a chessboard in JavaScript
-// Jean-Christophe Taveau
-// 19 nov 2012
-// http://crazybiocomputing.blogspot.com
-
-var imp = IJ.createImage("chessboard", "8-bit Black", 256, 256, 1);
-var cellsize=256/8;
-var scale = cellsize;
-
-// M a i n
-
-// Init gray level to white for drawing white cells
-imp.getProcessor().setValue(255);
-
-for (var y=0;y<8;y++) {
-  for (var x=0;x<8;x++) {
-    if ( (x+y)%2==0) {
-      imp.setRoi(x*scale,y*scale,cellsize,cellsize);
-      IJ.run(imp, "Fill", "slice");
-      // Can replace the two above lines
-      // imp.getProcessor().fill(new Roi(x*scale,y*scale,cellsize,cellsize) );
-    }
+var classNames = ["white", "black"];
+for(var i=0; i<64; i++){
+  var square = document.createElement("div");
+  if (i && i%8 === 0){ 
+  	classNames.reverse();
+  	square.className = "clear "
   }
+  square.className += (i%2 === 0)? classNames[0] : classNames[1];
+  document.body.appendChild(square);
 }
-
-// Display the image
-imp.show();
 </script>
 	
 </body>
