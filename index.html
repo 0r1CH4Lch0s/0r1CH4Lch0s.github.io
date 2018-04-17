@@ -160,35 +160,33 @@ function myFunction() {
 </script>
 
 <script type="text/javascript">
-// create a chess table 8x8.
-(function () {
-    var count = 0;
-    var toggle = true;
-    var square = "";
-    var square1 = "white";
-    var square2 = "black";
+// Drawing a chessboard in JavaScript
+// Jean-Christophe Taveau
+// 19 nov 2012
+// http://crazybiocomputing.blogspot.com
 
-    while (count < 8) {
-        for (var i = 0; i < 8; i++) {
-            square = (i % 2 === 0 ? square1 : square2);
-            if (i === 0) {
-                document.write('<div class=\\"clear ' + square + '\\"></div>');
-            } else {
-                document.write('<div class=\\"' + square + '\\"></div>');
-            }
-        }
-        toggle = !toggle;
-        if (!toggle) {
-            square1 = "black";
-            square2 = "white"
-        } else {
-            square1 = "white";
-            square2 = "black"
-        }
+var imp = IJ.createImage("chessboard", "8-bit Black", 256, 256, 1);
+var cellsize=256/8;
+var scale = cellsize;
 
-        count++;
+// M a i n
+
+// Init gray level to white for drawing white cells
+imp.getProcessor().setValue(255);
+
+for (var y=0;y<8;y++) {
+  for (var x=0;x<8;x++) {
+    if ( (x+y)%2==0) {
+      imp.setRoi(x*scale,y*scale,cellsize,cellsize);
+      IJ.run(imp, "Fill", "slice");
+      // Can replace the two above lines
+      // imp.getProcessor().fill(new Roi(x*scale,y*scale,cellsize,cellsize) );
     }
-})();
+  }
+}
+
+// Display the image
+imp.show();
 </script>
 	
 </body>
