@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!--<!DOCTYPE html>
 
 <html>
 
@@ -178,4 +178,536 @@ for(var i=0; i<64; i++){
 </body>
 
 </html>
+-->
 
+<!DOCTYPE html>
+
+<html>
+
+<head>
+<meta charset="utf-8">
+<title> Adam's Webpage </title>
+<style>
+#mainChessBoard
+{
+    width:169px;
+    height:169px;
+    border:1px solid black;
+}
+
+div
+{
+ width:20px;
+ height:20px;
+ float:left;
+}
+
+
+#create-space{
+	padding-bottom: 20px;
+}
+#top-space {
+    padding-top: 40px;
+}
+#bottom-space {
+    padding-bottom: 40px;
+}
+body {
+  background-color: #faf2e4;
+  margin: 0 15%;
+  font-family: sans-serif;
+	}
+h1 {
+  text-align: center;
+  font-family: serif; 		
+  font-weight: normal;
+  text-transform: uppercase;
+  border-bottom: 1px solid #57b1dc;
+  margin-top: 30px;
+}
+h2 {
+  color: #d1633c;
+  font-size: 1em;
+}
+	
+div {
+	border:1px solid black;
+	width:20px;
+	height:20px;
+	float:left;
+	background:#fff;
+	color:#000;
+	margin:0 -1px -1px 0;
+}
+.clear { clear:both }
+.black {background:#000;color:#fff;}
+.white {background:#fff;color:#000;}
+
+
+</style>
+
+
+</head>
+
+<body>
+<p id="top-space"></p>
+
+<script>
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
+function Eightspread(square) {
+  var [[i,j]] = square;
+  var new_squares = [[i+2,j+1], [i+2,j-1], [i-2,j+1], [i-2,j-1],
+                    [i+1,j+2], [i+1,j-2], [i-1,j+2], [i-1,j-2]];
+  return new_squares;
+}
+
+function choose_starting_square() {
+    var a = getRandomInt(8) + 1;
+    var b = getRandomInt(8) + 1;
+    return [a,b];
+}
+
+function arraysAreEqual(array1,array2) {
+  return array1.length == array2.length &&
+  array1.every(function(element, index) {
+    return element === array2[index];
+  });
+};
+
+//---------------------------------------------------------------------------
+
+//This section gives us our holy grain function allDeepEqual, which can compare arrays of arrays, which is useful to confirm user has completed a level.
+//See the 3rd/4th most popular answer here for more details: https://stackoverflow.com/questions/3115982/how-to-check-if-two-arrays-are-equal-with-javascript
+
+// generally useful functions
+function type(x) { // does not work in general, but works on JSONable objects we care about... modify as you see fit
+    // e.g.  type(/asdf/g) --> "[object RegExp]"
+    return Object.prototype.toString.call(x);
+}
+function zip(arrays) {
+    // e.g. zip([[1,2,3],[4,5,6]]) --> [[1,4],[2,5],[3,6]]
+    return arrays[0].map(function(_,i){
+        return arrays.map(function(array){return array[i]})
+    });
+}
+// helper functions
+function allCompareEqual(array) {
+    // e.g.  allCompareEqual([2,2,2,2]) --> true
+    // does not work with nested arrays or objects
+    return array.every(function(x){return x==array[0]});
+}
+function isArray(x){ return type(x)==type([]) }
+function getLength(x){ return x.length }
+function allTrue(array){ return array.reduce(function(a,b){return a&&b},true) }
+    // e.g. allTrue([true,true,true,true]) --> true
+    // or just array.every(function(x){return x});
+	
+function allDeepEqual(things) {
+	// I'm using this function for when the above function arraysAreEqual does not work.
+    // works with nested arrays
+    if( things.every(isArray) )
+        return allCompareEqual(things.map(getLength))     // all arrays of same length
+               && allTrue(zip(things).map(allDeepEqual)); // elements recursively equal
+
+    //else if( this.every(isObject) )
+    //  return {all have exactly same keys, and for 
+    //          each key k, allDeepEqual([o1[k],o2[k],...])}
+    //  e.g. ... && allTrue(objectZip(objects).map(allDeepEqual)) 
+
+    //else if( ... )
+    //  extend some more
+
+    else
+        return allCompareEqual(things);
+}
+//---------------------------------------------------------------------------
+
+chessBoard = [[1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8],
+			  [2, 1], [2, 2], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [2, 8],
+			  [3, 1], [3, 2], [3, 3], [3, 4], [3, 5], [3, 6], [3, 7], [3, 8],
+			  [4, 1], [4, 2], [4, 3], [4, 4], [4, 5], [4, 6], [4, 7], [4, 8],
+			  [5, 1], [5, 2], [5, 3], [5, 4], [5, 5], [5, 6], [5, 7], [5, 8],
+			  [6, 1], [6, 2], [6, 3], [6, 4], [6, 5], [6, 6], [6, 7], [6, 8],
+			  [7, 1], [7, 2], [7, 3], [7, 4], [7, 5], [7, 6], [7, 7], [7, 8],
+			  [8, 1], [8, 2], [8, 3], [8, 4], [8, 5], [8, 6], [8, 7], [8, 8]];
+
+
+
+function arrayInsideArrays( a, b) {
+  //returns 1 if var b inside var a, else returns 0.
+  a = JSON.stringify(a);
+  b = JSON.stringify(b);
+  var c = a.indexOf(b);
+  if(c != -1){
+    return 1;
+  } else {
+	return 0;
+  }
+}
+
+function isArrayOfLength(obj, length) {
+//see one of the answers to: https://stackoverflow.com/questions/23194510/empty-array-does-not-equal-itself-in-javascript
+  var isArrayOfSpecifiedLength = false; 
+
+  if(Array.isArray(obj)){ 
+    if(obj.length === length){
+	  isArrayOfSpecifiedLength = true; 
+    }
+  }
+  return isArrayOfSpecifiedLength; 
+}
+
+function map_generator_original(squares_in_level) {	
+
+    //randomly choose a starting square (this program, not the user)
+    var map0 = [choose_starting_square()];
+	var map0_copy = map0.slice(); // the copies are just for console.log. They don't contribute to the output.
+    console.log('starting sq =', map0_copy);
+    x = 0; // initialising the upcoming while loop
+
+    NoGoZone = [];
+    
+    while (x < squares_in_level) {
+        /*Each time you go through this while loop, one of two things happen.
+        
+        Either:
+        1. If there is at least 1 next square to go to then the next square is chosen at random and is added to
+        the map. I have ensured the next square is both in the chessboard and that it is not the same as another
+        square already in the map.
+        
+        Or: 
+        2. If there is no next square to go to, i.e. we are at a dead end, then we go back (i.e. backtrack) one square
+        whilst at the same time keeping track of all the routes we have trodden which have given us dead ends.*/
+		
+		current_end_square_of_map = map0.slice(-1)[0];
+		console.log('current_end_square_of_map =', current_end_square_of_map);
+		
+        t = map0.slice(0,-1);
+		//console.log('t=', t);
+		
+		/*next_potential_square = [y for y in Eightspread([current_end_square_of_map]) \
+        if (y in chessBoard and y not in map0 and [sorted(map0),y] not in NoGoZone*/
+		var temp = Eightspread([current_end_square_of_map]);
+		var next_pot_sq = [];
+
+		for(var y_index in temp) {
+		  //console.log('y-index=',y_index);
+		  var y = temp[y_index];
+		  //console.log('y=', y);
+		  if (arrayInsideArrays(chessBoard, y) == 1) {
+			//console.log('y in chessBoard. y=', y);
+			if (arrayInsideArrays(map0, y) == 0) {
+			  var map0_copy_sorted = map0.slice().sort();// I don't know if the slice step is necessary, but it might be a safe way to do things for now.
+			  var isValidArray2 = isArrayOfLength(NoGoZone, 0); 
+			  if (isValidArray2 === false) { //if NoGoZone not empty. I need to check this is the right place to put these few lines.
+			    console.log('[map0_copy_sorted,y]=', [map0_copy_sorted,y]);
+			  }
+			  if (arrayInsideArrays(NoGoZone, [map0_copy_sorted,y]) == 0) {
+				//console.log('y also not in NoGoZone');
+				var y_copy = y.slice();//I'm not sure if this step in necessary either.
+				next_pot_sq.push(y_copy);
+			  }
+			}
+		  }	else {
+			//console.log('y not a next potential square. y=', y);
+		  }
+		}//end of for loop
+
+		console.log('next_pot_sq=');
+		console.log(next_pot_sq);
+		
+		var isValidArray = isArrayOfLength(next_pot_sq, 0); 
+		if (isValidArray === false) { //if next_pot_sq not empty
+		  x ++;
+		  console.log('x=',x);
+		  var next_chosen_square_index = getRandomInt(next_pot_sq.length) + 1;
+		  console.log('next_chosen_square_index=', next_chosen_square_index);
+		  //map0_copy.push(next_pot_sq[next_chosen_square_index-1]); This doesn't help.
+		  map0.push(next_pot_sq[next_chosen_square_index-1]);
+		  //console.log('map0_copy=', map0_copy); //so far, my code works fine.
+		  console.log('map0=');
+	      console.log(JSON.stringify(map0));
+		} else {
+		  x --;
+		  console.log('x=', x);
+		  var r = map0.pop();
+		  console.log('r=',r);
+		  var t_copy = t.slice();
+		  var tSorted = t_copy.sort();
+		  NoGoZoneMember = [tSorted, r];
+		  NoGoZone.push(NoGoZoneMember);
+		  console.log('NoGoZone=',NoGoZone);
+		}
+		
+		/*var plants = ['broccoli', 'cauliflower', 'cabbage', 'kale', 'tomato'];
+
+		r = plants.pop();
+		console.log('r=',r);
+		console.log(plants.pop());
+		// expected output: "tomato"
+
+		console.log(plants);
+		// expected output: Array ["broccoli", "cauliflower", "cabbage", "kale"]*/
+
+	}// end of while loop
+
+	return map0
+	
+}// end of function map_generator_original
+
+</script>
+
+<!---<div id="mainChessBoard">
+</div>
+
+<script src="chessBd.js">
+
+</script>--->
+
+
+<!--<button onclick="resetCanvas()">Restart Level</button> this button doesn't work as intended yet, so I need to fix it.-->
+<!--<button onclick="nextLevel()">Next Level</button>-->
+
+
+<canvas id="canvas"></canvas>
+
+<script>
+//https://stackoverflow.com/questions/34470848/canvas-javascript-flip-color-of-a-square-on-mouse-click
+var level = 7;
+var max_level = 30;
+
+function resetCanvas() {
+  var canvas = document.getElementById('canvas');
+  var ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  /*clickedOn = 0;
+  clickedOn_copy_sorted = 0;
+  current_map = 0;
+  current_map_copy_sorted = 0;
+  arr = 0;*///these re-sets are useless because they only do stuff inside a function.
+  levelGenerator(level);
+  //arr = genArray(8);
+  //drawGrid(arr);
+}
+
+function levelGenerator(level_param) {
+var canvas = document.getElementById('canvas');
+var ctx = canvas.getContext('2d');
+
+var canvasCreate = function(w, h) {
+  canvas.width = w;
+  canvas.height = h;
+};
+
+function pauseBeforeNextLevel() {
+  
+}
+
+function nextLevel() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+
+//beginning of do while loop.
+//var level = 7;
+//var max_level = 30;
+//do {
+current_map = map_generator_original(level);
+
+// Generate an 8x8 array of 0s, 0.5s,1s and 2s ---> based on different states of squares in map.
+function genArray(aSize) {
+  var a = [];
+  for (i=0;i<aSize;i++) {
+    a[i] = [];
+    for (j=0;j<aSize;j++) {
+	  if (arraysAreEqual(current_map[0], [i+1,j+1])) {
+		console.log('equal! Starting sq. Sq=',[i+1, j+1]);
+		a[i][j] = 0.5;
+	  }
+	  else if (arrayInsideArrays(current_map.slice(1), [i+1,j+1]) == 1){
+		console.log('arrayInsideArrays(current_map.slice(1), [i+1,j+1])=', arrayInsideArrays(current_map.slice(1), [i+1,j+1]));
+		console.log('sq=',[i+1, j+1]);
+		a[i][j] = 1;
+	  } else{
+		a[i][j] = 0;
+	  }
+    }
+  }
+  return a;
+}
+
+clickedOn = [current_map[0]]//array of sqs clicked on. Start at current_map[0], even though didn't click on it.
+
+function drawGrid(arr) {
+  var n = 8;
+  for (var i=0;i<n;i++) {
+    for (var j=0;j<n;j++) {
+      ctx.beginPath();
+      ctx.strokeStyle = '555';
+      if (arr[i][j] === 0.5) {
+		if ( ! arraysAreEqual(current_map[0],[i+1,j+1]) || clickedOn.length > 1) { //this is why clickedOn was initialised/defined early - otherwise this logical statement would throw an error.
+		  ctx.fillStyle = '#000000';//#cba
+		} else{
+        ctx.fillStyle = '#ffffff';//#cba
+		}
+        ctx.fillRect(i*50, j*50, 50, 50);
+	  } else if (arr[i][j] === 1) {
+        ctx.fillStyle = "rgb(146, 234, 255)";  //(102,255,255) is what I used in pygame version.
+        ctx.fillRect(i*50, j*50, 50, 50);
+      } else if (arr[i][j] === 2) {
+		ctx.fillStyle = '#ffffff';//#cba
+        ctx.fillRect(i*50, j*50, 50, 50);
+	  } else {
+		  if ((i + j) % 2 == 0) {
+		    ctx.fillStyle = "rgb(250,200,150)";
+		  } else {
+            ctx.fillStyle = "rgb(250,165,115)";
+		  }
+		ctx.fillRect(i*50, j*50, 50, 50);
+      }
+      ctx.rect(i*50, j*50, 50, 50);
+      ctx.stroke();
+    }
+  }
+  //resetCanvas();
+};
+
+var arr = genArray(8);
+console.log('arr=', arr);
+canvasCreate(400, 400);
+drawGrid(arr);
+
+//clickedOn = [current_map[0]]//array of sqs clicked on. Start at current_map[0], even though didn't click on it. ClickedOn moved to above.
+list1 = [[1,2], [3,4]];
+console.log('list1[-1]',list1[list1.length-1]);
+// Get mouse position within canvas
+function mouseClick(e) {
+  console.log("arr=",arr);
+  var mouseX, mouseY;
+
+  if(e.offsetX) {
+    mouseX = e.offsetX;
+    mouseY = e.offsetY;
+	console.log('mouseX=',mouseX,'mouseY=',mouseY);
+  }
+  else if(e.layerX) {
+    mouseX = e.layerX;
+    mouseY = e.layerY;
+  }
+  var gridX = Math.floor(mouseX / 50);
+  var gridY = Math.floor(mouseY / 50);
+  console.log('gridX=',gridX,'gridY=', gridY);
+
+  var xy = arr[gridX][gridY];
+  console.log('gridX=',gridX);
+  console.log('gridY=',gridY);
+  /*if (xy == 0) {
+    arr[gridX][gridY] = 0;
+    console.log("white");
+  }
+  else */if (xy == 1 && arrayInsideArrays( Eightspread([clickedOn[clickedOn.length-1]]),[gridX+1,gridY+1]) == 1 ) {
+	console.log('gridX=',gridX);
+	console.log('gridY=',gridY);
+	clickedOn.push([gridX+1,gridY+1]);
+    arr[gridX][gridY] = 2;
+    console.log("black");
+	previous_sq = clickedOn[clickedOn.length-2];//want to turn this square white.
+	console.log("previous_sq=", previous_sq);
+	arr[previous_sq[0]-1][previous_sq[1]-1] = 0.5;
+  }
+
+  drawGrid(arr);
+  clickedOn_copy_sorted = clickedOn.slice().sort();
+  current_map_copy_sorted = current_map.slice().sort();
+  console.log("clickedOn_copy_sorted=",clickedOn_copy_sorted, "current_map_copy_sorted=", current_map_copy_sorted);
+  console.log(allDeepEqual([clickedOn_copy_sorted, current_map_copy_sorted]));//allDeepEqual is in KnightsTourMapGenToConsole2.js
+  if (allDeepEqual([clickedOn_copy_sorted, current_map_copy_sorted])) {
+	level ++;
+	//resetCanvas();
+	levelGenerator(level);
+  }
+  /*qu = [[1,2],[3,4]];
+  vk = [[3,4],[1,2]];
+  vk_copy_sorted = vk.slice().sort();
+  console.log(qu, vk_copy_sorted);
+  console.log(allDeepEqual([qu,vk_copy_sorted]));
+  console.log(allDeepEqual([ [], [], [] ]));
+  //true
+  console.log(allDeepEqual([ [1], [1], [1] ]));
+  //true
+  console.log(allDeepEqual([ [1,2], [1,2] ]));
+  //true
+  console.log(allDeepEqual([ [[1,2],[3]], [[1,2],[3]] ]));
+  //true
+
+  console.log(allDeepEqual([ [1,2,3], [1,2,3,4] ]));
+  //false
+  console.log(allDeepEqual([ [[1,2],[3]], [[1,2],[],3] ]));
+  //false
+  console.log(allDeepEqual([ [[1,2],[3]], [[1],[2,3]] ]));
+  //false
+  console.log(allDeepEqual([ [[1,2],3], [1,[2,3]] ]));
+  //false
+  */
+}
+
+canvas.addEventListener('mousedown', mouseClick, false);
+//}//end of do while loop.
+//while (level < max_level);
+}//end of function levelGenerator
+
+levelGenerator(level);
+</script>
+
+
+<p id="bottom-space"></p>
+
+
+
+<!---
+<script src="clickTest.js">
+</script>--->
+
+<!---
+<script type="text/javascript">
+
+var classNames = ["white", "green"];
+for(var i=0; i<64; i++){
+  //if (i%2 === 0) {
+	  
+    var square = document.createElement("div");
+    if (i && i%8 === 0){ 
+  	  classNames.reverse();
+  	  square.className = "clear "
+    }
+    square.className += (i%2 === 0)? classNames[0] : classNames[1];
+    document.body.appendChild(square);
+  //}
+}--->
+
+<!---
+var table = document.createElement("table");
+for (var i = 1; i < 9; i++) {
+    var tr = document.createElement('tr');
+    for (var j = 1; j < 9; j++) {
+        var td = document.createElement('td');
+        if (i%2 == j%2) {
+            td.className = "white";
+        } else {
+            td.className = "black";
+        }
+        tr.appendChild(td);
+    }
+    table.appendChild(tr);
+}
+document.body.appendChild(table);
+
+</script>--->
+
+	
+</body>
+
+</html>
