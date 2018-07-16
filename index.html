@@ -549,22 +549,22 @@ function drawGrid(arr) {
       ctx.strokeStyle = '555';
       if (arr[i][j] === 0.5) {
 		if ( ! arraysAreEqual(current_map[0],[i+1,j+1]) || clickedOn.length > 1) { //this is why clickedOn was initialised/defined early - otherwise this logical statement would throw an error.
-		  ctx.fillStyle = '#000000';//#cba
+		  ctx.fillStyle =  'rgb(254, 42, 42)';//#was white '#ffffff'
 		} else{
-        ctx.fillStyle = '#ffffff';//#cba
+        ctx.fillStyle = '#000000';//was white ('#ffffff')
 		}
         ctx.fillRect(i*75, j*75, 75, 75);
 	  } else if (arr[i][j] === 1) {
         ctx.fillStyle = "rgb(146, 234, 255)";  //(102,255,255) is what I used in pygame version.
         ctx.fillRect(i*75, j*75, 75, 75);
       } else if (arr[i][j] === 2) {
-		ctx.fillStyle = '#ffffff';//#cba
+		ctx.fillStyle = '#000000';//was white ('#ffffff')
         ctx.fillRect(i*75, j*75, 75, 75);
 	  } else {
 		  if ((i + j) % 2 == 0) {
-		    ctx.fillStyle = "rgb(250,200,150)";
+		    ctx.fillStyle = "rgb(250, 212, 165)";//was rgb"(250,200,150)". Made it slightly lighter.
 		  } else {
-            ctx.fillStyle = "rgb(250,165,115)";
+            ctx.fillStyle = "rgb(250, 175, 127)";//was rgb"(250,165,115)". Made slightly lighter.
 		  }
 		ctx.fillRect(i*75, j*75, 75, 75);
       }
